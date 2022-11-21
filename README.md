@@ -3,52 +3,97 @@
 Topological feature calculators infrastructure.
 
 ## Calculating Features
-This repository helps one to calculate features for a given graph. All features are implemented in python codes, 
+This package helps one to calculate features for a given graph. All features are implemented in python codes, 
 and some features have also an accelerated version written in C++. Among the accelerated features, one can find 
 a code for calculating 3- and 4-motifs using VDMC, a distributed algorithm to calculate 3- and 4-motifs in a 
 GPU-parallelized way.
 
+## Versions
+- Last version: 0.1.46
+- Last stable version: 0.1.22
+
 ## What Features Can Be Calculated Here?
-The set of all vertex features implemented in graph-measures is the following. 
-The features that have an accelerated version are written in bold:
-* Average neighbor degree
-* General (i.e. degree if undirected, else or (in-degree, out-degree))
-* Louvain (i.e. implement Louvain community detection method, then associate to each vertex the number of vertices 
-in its community)
-* Hierarchy energy
-* **Motifs**
-* **K core**
-* **Attraction basin** 
-* **Page Rank**
-* Fiedler vector
-* Closeness centrality
-* Eccentricity
-* Load centrality
-* **BFS moments**
-* **Flow** 
-* Betweenness centrality
-* Communicability betweenness centrality
-* Eigenvector centrality
-* Clustering coefficient
-* Square clustering coefficient
-* Generalized degree
-* All pairs shortest path length
-* All pairs shortest path
+The set of all vertex features implemented in graph-measures is the following.
 
-Aside from those, there are some other [edge features](features_algorithms/edges).
-Some more information regarding the features can be found in the files of [features_meta](features_meta).
+| Feature                                | Feature's name in code                 | Is available in gpu? | Output size for directed graph | Output size for undirected graph |
+|----------------------------------------|----------------------------------------|----------------------|--------------------------------|----------------------------------|
+| Average neighbor degree                | average_neighbor_degree                | NO                   | N x 1                          | N x 1                            |
+| General^                               | general                                | NO                   | N x 2                          | N x 1                            |
+| Louvain^^                              | louvain                                | NO                   | - - - - - - -                  | N x 1                            |
+| Hierarchy energy                       | hierarchy_energy                       | NO                   |                                |                                  |
+| Motifs3                                | motif3                                 | YES                  | N x 13                         | N x 2                            |
+| Motifs4                                | motif4                                 | YES                  | N x 199                        | N x 6                            |
+| K core                                 | k_core                                 | YES                  | N x 1                          | N x 1                            |
+| Attraction basin                       | attractor_basin                        | YES                  | N x 1                          | - - - - - - -                    |
+| Page Rank                              | page_rank                              | YES                  | N x 1                          | N x 1                            |
+| Fiedler vector                         | fiedler_vector                         | NO                   | - - - - - - -                  | N x 1                            |
+| Closeness centrality                   | closeness_centrality                   | NO                   | N x 1                          | N x 1                            |
+| Eccentricity                           | eccentricity                           | NO                   | N x 1                          | N x 1                            |
+| Load centrality                        | load_centrality                        | NO                   | N x 1                          | N x 1                            |
+| BFS moments                            | bfs_moments                            | YES                  | N x 2                          | N x 2                            |
+| Flow                                   | flow                                   | YES                  | N x 1                          | - - - - - - -                    |
+| Betweenness centrality                 | betweenness_centrality                 | NO                   | N x 1                          | N x 1                            |
+| Communicability betweenness centrality | communicability_betweenness_centrality | NO                   | - - - - - - -                  | N x ?                            |
+| Eigenvector centrality                 | eigenvector_centrality                 | NO                   | N x 1                          | N x 1                            |
+| Clustering coefficient                 | clustering_coefficient                 | NO                   | N x 1                          | N x 1                            |
+| Square clustering coefficient          | square_clustering_coefficient          | NO                   | N x 1                          | N x 1                            |
+| Generalized degree                     | generalized_degree                     | NO                   | - - - - - - -                  | N x 16                           |
+| All pairs shortest path length         | all_pairs_shortest_path_length         | NO                   | N x N                          | N x N                            |
 
-**NOTE:** For codes relating the motifs and their calculations, one might need to create the motif variation pickle files
-in _features_algorithms/motif_variations_. To do so, one needs to run [isomorphic.py](features_algorithms/motif_variations/isomorphic.py). 
-   
- 
+^ General - Degree if undirected, else or (in-degree, out-degree) <br>
+^^Louvain - Implement Louvain community detection method, then associate to each vertex the number of vertices in its community
+
+Aside from those, there are some other [edge features](https://github.com/AmitKabya/graph-measures/tree/master/src/graphMeasures/features_algorithms/edges).
+Some more information regarding the features can be found in the files of [features_meta](https://github.com/AmitKabya/graph-measures/blob/master/src/graphMeasures/features_meta).
+
+## Dependencies
+```requirements.txt
+setuptools
+networkx==2.6.3
+pandas
+numpy
+matplotlib
+scipy
+scikit-learn
+python-louvain
+bitstring
+future
+torch
+```
+
+## How To Use The Accelerated Version (CPU/GPU)?
+Both versions currently are not supported with the pip installation. \
+To use the accelerated version, one must use <b>*Linux* operation system</b> and <b>*Anaconda* distribution</b>, with the follow the next steps:
+1. Go to the [package's GitHub website](https://github.com/AmitKabya/graph-measures) and manually download:
+
+   - The directory `graphMeasures`.
+   - The python file `runMakefileACC.py`.
+
+   *You might need to download a zip of the repository and extract the necessary files.*
+2. Place both the file and the directory inside your project, and run `runMakefileACC.py`.
+3. Move to the *boost environment*: `conda activate boost` (The environment was created in step 2).
+4. Use the package as explained in the section `How To Use?`
+
+## Installation Through pip
+The full functionality of the package is currently available on a Linux machine, with a Conda environment.
+- Linux + Conda<br>1. Go to base environment<br>2. If pip is not installed on your env, install it. Then, use pip to install the package
+- Otherwise, pip must be installed.
+```commandline
+pip install graph-measures
+```
+**Note:** On Linux+Conda the installation might take longer (about 5-10 minuets) due to the compilation of the c++ files.
+## How To Use?
+Even though one has installed the package as `graph-measures`, The package should be imported from the code as `graphMesaures`. Hence, use:
+```python
+import graphMeasures
+```
 ## Calculating Features
 
 There are two main methods to calculate features:
-1. Using [features_for_any_graph.py](features_for_any_graph.py) - A file for calculating any requested features on a given graph.
-The class for calculating features in this file is _FeatureCalculator_. \
-The graph is input to this file as a text-like file of edges, with a comma delimiter. 
-For example, the graph [example_graph.txt](measure_tests/example_graph.txt) is the following file: 
+1. Using [FeatureCalculator](https://github.com/AmitKabya/graph-measures/blob/master/src/graphMeasures/features_for_any_graph.py) (**recommended**): \
+A class for calculating any requested features on a given graph. \
+The graph is input to this class as a text-like file of edges, with a comma delimiter, or a networkx _Graph_ object. 
+For example, the graph [example_graph.txt](https://github.com/AmitKabya/graph-measures/blob/master/src/graphMeasures/measure_tests/example_graph.txt) is the following file: 
     ```
     0,1
     0,2
@@ -58,21 +103,30 @@ For example, the graph [example_graph.txt](measure_tests/example_graph.txt) is t
     Now, an implementation of feature calculations on this graph looks like this:
     ```python
    import os
-   from features_for_any_graph import FeatureCalculator
-   feats = ["motif3", "louvain"]  # Any set of features
-   path = os.path.join("measure_tests", "example_graph.txt") 
-   head = "" # The path in which one would like to keep the pickled features calculated in the process. 
+   from graphMeasures import FeatureCalculator
+   # set of features to be calculated
+   feats = ["motif3", "louvain"]
+   # path to the graph's edgelist or nx.Graph object
+   graph = os.path.join("measure_tests", "example_graph.txt")
+   # The path in which one would like to save the pickled features calculated in the process. 
+   dir_path = "" 
    # More options are shown here. For infomation about them, refer to the file.
-   ftr_calc = FeatureCalculator(path, head, feats, acc=True, directed=False, gpu=True, device=0, verbose=True)
+   ftr_calc = FeatureCalculator(path, feats, dir_path=dir_path, acc=True, directed=False, gpu=True, device=0, verbose=True)
+   # calculate the features. If one do not want the features to be saved,
+   # one should set the parameter 'should_dump' to False (set to True by default).
    ftr_calc.calculate_features()
+   mx = ftr_calc.feature_matrix
     ``` 
-    More information can be found in [features_for_any_graph.py](features_for_any_graph.py).
-2. By the calculations as below:
+   More information can be found in [features_for_any_graph.py](https://github.com/AmitKabya/graph-measures/blob/master/src/graphMeasures/features_for_any_graph.py). \
+   **Note:** If one set `acc=True` without using a Linux+Conda machine, an exception will be thrown.\
+   **Note:** If one set `gpu=True` without using a Linux+Conda machine that has cuda available on it, an exception will be thrown.
+
+2. By the calculations as below **(less recommended)**: \
 The calculations require an input graph in NetworkX format, later referred as gnx, and a logger.
 For this example, we build a gnx and define a logger:
     ```python
    import networkx as nx
-   from loggers import PrintLogger
+   from graphMeasures.loggers import PrintLogger
     
    gnx = nx.DiGraph()  # should be a subclass of Graph
    gnx.add_edges_from([(0, 1), (0, 2), (1, 3), (3, 2)])
@@ -87,7 +141,7 @@ For this example, we build a gnx and define a logger:
     import numpy as np
     # Import the feature. 
     # If simple, import it from vertices folder, otherwise from accelerated_graph_features: 
-    from features_algorithms.vertices.louvain import LouvainCalculator  
+    from graphMeasures.features_algorithms.vertices.louvain import LouvainCalculator  
     
     feature = LouvainCalculator(gnx, logger=logger)  
     feature.build()  # The building happens here
@@ -99,14 +153,14 @@ For this example, we build a gnx and define a logger:
 
     ```python
    import numpy as np
-   from features_infra.graph_features import GraphFeatures
-    
-   from features_algorithms.vertices.louvain import LouvainCalculator
-   from features_algorithms.vertices.betweenness_centrality import BetweennessCentralityCalculator
+   from graphMeasures.features_infra.graph_features import GraphFeatures
+   from graphMeasures.features_infra.feature_calculators import FeatureMeta
+   from graphMeasures.features_algorithms.vertices.louvain import LouvainCalculator
+   from graphMeasures.features_algorithms.vertices.betweenness_centrality import BetweennessCentralityCalculator
     
    features_meta = {
        "louvain": FeatureMeta(LouvainCalculator, {"lov"}),
-      "betweenness_centrality": FeatureMeta(BetweennessCentralityCalculator, {"betweenness"}),
+       "betweenness_centrality": FeatureMeta(BetweennessCentralityCalculator, {"betweenness"}),
    }  # Hold the set of features as written here. 
     
    features = GraphFeatures(gnx, features_meta, logger=logger) 
@@ -114,92 +168,20 @@ For this example, we build a gnx and define a logger:
     
    mx = features.to_matrix(mtype=np.matrix)
     ```
-
-## How to use accelerated features?
-The accelerated feature calculation option requires some prior work, since its files are C++ files which require making.
-The complete manual can be found [here](https://drive.google.com/file/d/1SMGWsGpiegR1ZkA2zffyAJO4HNhM53dD/view?usp=sharing). 
-
-In short, for the GPU accelerated version using existing anaconda 3:
-* In case of problems with pickle files (e.g. inability to download), one can use the following [file](features_algorithms/motif_variations/rewrite_variations.py)
-to recreate the motif variation pickle files.
-1. Move into the path _features_algorithms/accelerated_graph_features/src_. 
-2. Create the conda environment required in which the work will be done: _"conda env create -f env.yml"_ 
-3. Activate the new environment: _"conda activate boost"_. \
-Then, make the files required for accelerated graph measures including motifs on GPU: \
-_"make -f Makefile-gpu"_ (this might take a while).
-4. Now, the accelerated graph features (including the GPU based motif calculations) can be used.
-
-
-## VDMC Results directory
-The directory called _vdmc_results_ includes results used for plotting some figures in the VDMC paper.
-The code files for receiving these results are located there, as well as the results files.
-
-## List-of-Lists (CSR) Format
-
-Our format is aimed at increasing the efficiency of our code by leveraging
-the computer's internal cache mechanism. We call this structure a List Of Lists Graph.
-The LOL Graph is composed of two arrays:
-1. An array which is composed of all the neighborhood lists placed back to
-back (Neighbors).
-2. An array which holds the starting index of each node's neighbor list (In-
-dices).
-
-There follows an example of the conversion routine for a simple graph. The given
-graph is the one composed of these edges: (0->1, 0->2,0->3,2->0,3->1,3->2).
-The behavior of the conversion now depends on whether the graph is directed
-or undirected.
-
-• If the graph is directed, the result is as follows: Indices: [0, 3, 3, 4, 6],
-Neighbors: [1, 2, 3, 0, 1, 2]
-
-• Else, the results for the undirected graph are: Indices: [0, 3, 5, 7, 10],
-Neighbors: [1, 2, 3, 0, 3, 0, 3, 0, 1, 2]
-
-The LOL Graph object is designed around the principle of cache-awareness.
-The most important thing to remember when accessing the graph is that we are aiming to accelerate the computations by loading sections
-of the graph into the cache ahead of time for quick access. When using the
-LOL Graph, this comes into effect when we iterate over the ofset vector first
-and then access the blocks of neighbor nodes in the graph vector. By doing
-this, we are pulling the entire list of a certain node's neighbors into the cache,
-allowing us to iterate over them extremely quickly.
-
-### How to use?
-
-For undirected graph:
-```
-
-undirected_graph = LolGraph(directed=False, weighted=True)
-
-undirected_graph.convert(edgeList) //For example: undirected_graph.convert([[1,2,3], [4,6,0.1]])
-```
-
-For directed graph:
-```
-directed_graph= DLGW(weighted=True)
-
-directed_graph.convert(edgeList) //For example: directed_graph.convert([[1,2,3], [4,6,0.1]])
-```
-
-Basically, you can use LolGraph class to create a directed graph, but some functions (in_degrees, predecessors) are not implemented in the most effecient way. 
-Therefore, use LolGraph for undirected graph, and DLGW for directed graph.
-
-The name of the implemented functions are the same as if you were using Networkx library.
-
-## Dockers - Optional
-The docker is designed to have all the things needed to run the code, including the boost environment and a proper Cuda version.
-The docker file may be found in [the dockers directory](dockers/).
-
-Please note: It's needed to compile the code before using the docker.
-
-To use it:
-* Go to the dockers directory
-* Build:
+   
+   **Note:** All the keys-values options that can be set in the `features_meta` variable can be found
+   in `graphMeasures.features_meta` or `graphMeasures.accelerated_features_meta`
+   ```python
+   from graphMeasures.features_meta import FeaturesMeta
+   # if one uses the accelerated calculation:
+   # from graphMeasures.accelerated_features_meta import FeaturesMeta
+   all_possible_features_meta = FeaturesMeta().NODE_LEVEL
+   
+   # all possible features
+   print(all_possible_features_meta.keys())   
+   # get the value for louvain
+   louvain = all_possible_features_meta['louvain']   
+   # get the value for betweenness_centrality
+   betweenness_centrality = all_possible_features_meta['betweenness_centrality']
    ```
-   docker build -t <Enter any wanted name>:01 .
-   ```
-* Run:
-   ```
-   docker run -it --rm --gpus device=<The ordinal number of the gpu> -v <Path to graph-measures directory>:<Path to graph-measures directory> <The chosen name from the building>:01 bash
-   ```
-* Inside the docker, find the graph-measures directory and run the code :smiley:
    
