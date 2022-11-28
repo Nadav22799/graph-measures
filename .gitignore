@@ -106,3 +106,10 @@ ENV/
 
 # VSCode 
 .vscode
+
+# file
+FuturePossibleImprovements.txt
+
+# tests
+/tests
+
