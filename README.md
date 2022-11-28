@@ -9,8 +9,7 @@ a code for calculating 3- and 4-motifs using VDMC, a distributed algorithm to ca
 GPU-parallelized way.
 
 ## Versions
-- Last version: 0.1.46
-- Last stable version: 0.1.22
+- Last version: 0.1.51
 
 ## What Features Can Be Calculated Here?
 The set of all vertex features implemented in graph-measures is the following.
@@ -18,7 +17,9 @@ The set of all vertex features implemented in graph-measures is the following.
 | Feature                                | Feature's name in code                 | Is available in gpu? | Output size for directed graph | Output size for undirected graph |
 |----------------------------------------|----------------------------------------|----------------------|--------------------------------|----------------------------------|
 | Average neighbor degree                | average_neighbor_degree                | NO                   | N x 1                          | N x 1                            |
-| General^                               | general                                | NO                   | N x 2                          | N x 1                            |
+| Degree^                                | degree                                 | NO                   | N x 2                          | N x 1                            |
+| In degree                              | in_degree                              | NO                   | N x 1                          | - - - - - - -                    |
+| Out degree                             | out_degree                             | NO                   | N x 1                          | - - - - - - -                    |
 | Louvain^^                              | louvain                                | NO                   | - - - - - - -                  | N x 1                            |
 | Hierarchy energy                       | hierarchy_energy                       | NO                   |                                |                                  |
 | Motifs3                                | motif3                                 | YES                  | N x 13                         | N x 2                            |
@@ -40,8 +41,8 @@ The set of all vertex features implemented in graph-measures is the following.
 | Generalized degree                     | generalized_degree                     | NO                   | - - - - - - -                  | N x 16                           |
 | All pairs shortest path length         | all_pairs_shortest_path_length         | NO                   | N x N                          | N x N                            |
 
-^ General - Degree if undirected, else or (in-degree, out-degree) <br>
-^^Louvain - Implement Louvain community detection method, then associate to each vertex the number of vertices in its community
+^ Degree - In the undirected case return the sum of the in degree and the out degree. <br>
+^^Louvain - Implement Louvain community detection method, then associate to each vertex the number of vertices in its community.
 
 Aside from those, there are some other [edge features](https://github.com/AmitKabya/graph-measures/tree/master/src/graphMeasures/features_algorithms/edges).
 Some more information regarding the features can be found in the files of [features_meta](https://github.com/AmitKabya/graph-measures/blob/master/src/graphMeasures/features_meta).
@@ -123,10 +124,10 @@ For example, the graph [example_graph.txt](https://github.com/AmitKabya/graph-me
 
 2. By the calculations as below **(less recommended)**: \
 The calculations require an input graph in NetworkX format, later referred as gnx, and a logger.
-For this example, we build a gnx and define a logger:
+   For this example, we build a gnx and define a logger:
     ```python
    import networkx as nx
-   from graphMeasures.loggers import PrintLogger
+   from graphMeasures import PrintLogger
     
    gnx = nx.DiGraph()  # should be a subclass of Graph
    gnx.add_edges_from([(0, 1), (0, 2), (1, 3), (3, 2)])
@@ -134,14 +135,14 @@ For this example, we build a gnx and define a logger:
    logger = PrintLogger("MyLogger")
     ```
     On the gnx we have, we will want to calculate the topological features.
-    There are two options to calculate topological features here, depending on the number of features we want to calculate: 
+   There are two options to calculate topological features here, depending on the number of features we want to calculate: 
     * Calculate a specific feature:
 
     ```python
     import numpy as np
     # Import the feature. 
     # If simple, import it from vertices folder, otherwise from accelerated_graph_features: 
-    from graphMeasures.features_algorithms.vertices.louvain import LouvainCalculator  
+    from graphMeasures.features_algorithms.vertices import LouvainCalculator  
     
     feature = LouvainCalculator(gnx, logger=logger)  
     feature.build()  # The building happens here
@@ -153,10 +154,10 @@ For this example, we build a gnx and define a logger:
 
     ```python
    import numpy as np
-   from graphMeasures.features_infra.graph_features import GraphFeatures
+   from graphMeasures.features_infra import GraphFeatures
    from graphMeasures.features_infra.feature_calculators import FeatureMeta
-   from graphMeasures.features_algorithms.vertices.louvain import LouvainCalculator
-   from graphMeasures.features_algorithms.vertices.betweenness_centrality import BetweennessCentralityCalculator
+   from graphMeasures.features_algorithms.vertices import LouvainCalculator
+   from graphMeasures.features_algorithms.vertices import BetweennessCentralityCalculator
     
    features_meta = {
        "louvain": FeatureMeta(LouvainCalculator, {"lov"}),
@@ -172,7 +173,7 @@ For this example, we build a gnx and define a logger:
    **Note:** All the keys-values options that can be set in the `features_meta` variable can be found
    in `graphMeasures.features_meta` or `graphMeasures.accelerated_features_meta`
    ```python
-   from graphMeasures.features_meta import FeaturesMeta
+   from graphMeasures import FeaturesMeta
    # if one uses the accelerated calculation:
    # from graphMeasures.accelerated_features_meta import FeaturesMeta
    all_possible_features_meta = FeaturesMeta().NODE_LEVEL
@@ -184,4 +185,10 @@ For this example, we build a gnx and define a logger:
    # get the value for betweenness_centrality
    betweenness_centrality = all_possible_features_meta['betweenness_centrality']
    ```
+   
+### Ouptput
+graphMeasures uses ```networkx```'s ```networkx.convert_node_labels_to_integers``` function, and then calculates the features. 
+That's why the output matrix is ordered by the new nodes labels (from 0 to n-1) and not by the original labels.
+
+graphMeasures sometimes return the output columns not in the order they were inserted. The 
    
