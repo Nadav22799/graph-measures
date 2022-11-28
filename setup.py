@@ -79,7 +79,7 @@ if __name__ == '__main__':
 
     setup(
         name="graph-measures",
-        version="0.1.48",
+        version="0.1.51",
         license="GPL",
         maintainer="Ziv Naim",
         author="Itay Levinas",
@@ -95,6 +95,7 @@ if __name__ == '__main__':
         install_requires=requirements,
         packages=find_packages('.'),
         python_requires=">=3.6.8",
+        package_data={'': ['*.pkl']},
         include_package_data=True,
         has_ext_modules=lambda: True,
         package_dir={"": "."},

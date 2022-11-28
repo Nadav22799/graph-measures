@@ -9,8 +9,7 @@ a code for calculating 3- and 4-motifs using VDMC, a distributed algorithm to ca
 GPU-parallelized way.
 
 ## Versions
-- Last version: 0.1.46
-- Last stable version: 0.1.22
+- Last version: 0.1.51
 
 ## What Features Can Be Calculated Here?
 The set of all vertex features implemented in graph-measures is the following.
