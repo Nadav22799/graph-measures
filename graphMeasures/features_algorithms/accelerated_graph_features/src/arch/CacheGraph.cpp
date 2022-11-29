@@ -332,29 +332,36 @@ std::vector<float> CacheGraph::ComputeNodePageRank(float dumping,
 }
 
 std::vector<unsigned short> CacheGraph::ComputeKCore() const {
-	const unsigned short UNSET_K_CORE = static_cast<unsigned short>(-1);
+	// Note: This code assumes that the lol graph is undirected.
+	// Any other input may cause a wrong output.
+
+	unsigned int nodes_finished = 0;	// number of nodes we already set their k_core
+	const unsigned short UNSET_K_CORE = static_cast<unsigned short>(-1);	// const that sign that this nodes hasn't k_core yet
+
 	std::vector<unsigned short> KShell(m_NumberOfNodes, UNSET_K_CORE);
 	std::vector<unsigned int> Degrees(m_NumberOfNodes, 0);
-	for (unsigned int NodeID = 0; NodeID < m_NumberOfNodes; ++NodeID) {
-		Degrees[NodeID] = static_cast<unsigned int>(m_Offsets[NodeID + 1]
-				- m_Offsets[NodeID]);
-		if (Degrees[NodeID] == 0) {
-			KShell[NodeID] = 0;
-		}
-	}
-	unsigned short CurrentShell = 1;
-	bool NodesInShell = false;
-	do {
-		NodesInShell = false;
-		bool any_degree_changed = false;
+
+	// Initializes the degrees vector:
+	// Sets the degrees for undirected graph or the out-degrees for directed graph.
+	for (unsigned int NodeID = 0; NodeID < m_NumberOfNodes; ++NodeID)
+		Degrees[NodeID] = static_cast<unsigned int>(m_Offsets[NodeID + 1] - m_Offsets[NodeID]);
+
+	unsigned short CurrentShell = 0;
+	bool any_degree_changed = false;
+
+	while (nodes_finished < m_NumberOfNodes) {
 		do {
 			any_degree_changed = false;
 			for (unsigned int NodeID = 0; NodeID < m_NumberOfNodes; ++NodeID) {
-
+				// running all over the nodes
 				if (KShell[NodeID] == UNSET_K_CORE
 						&& Degrees[NodeID] <= CurrentShell) {
-					KShell[NodeID] = CurrentShell;
-					NodesInShell = true;
+					// if we didn't set k_shell for this node, and the degree of the node is less or equal to the current degree:
+
+					KShell[NodeID] = CurrentShell;	// sets the k_shell
+					nodes_finished++;
+
+					// remove the node from the graph - reduce the degree of the neighbors.
 					for (auto p = m_Graph + m_Offsets[NodeID];
 							p < m_Graph + m_Offsets[NodeID + 1]; ++p) {
 						if (KShell[*p] == UNSET_K_CORE) {
@@ -366,7 +373,8 @@ std::vector<unsigned short> CacheGraph::ComputeKCore() const {
 			}
 		} while (any_degree_changed);
 		++CurrentShell;
-	} while (NodesInShell);
+	}
+
 	return KShell;
 }
 
