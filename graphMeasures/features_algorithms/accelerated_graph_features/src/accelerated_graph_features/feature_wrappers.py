@@ -1,10 +1,3 @@
-import sys
-import os
-
-# Leave the path changes here!!!
-# sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
-# sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
-
 from .feature_wrapper_decorator import FeatureWrapper
 
 

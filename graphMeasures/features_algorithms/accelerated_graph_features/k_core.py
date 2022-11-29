@@ -1,12 +1,4 @@
-import os
-import sys
-
-# sys.path.append(os.path.abspath('.'))
-# sys.path.append(os.path.abspath('..'))
-# sys.path.append(os.path.abspath('../..'))
-# sys.path.append(os.path.abspath('../../..'))
-# sys.path.append(os.path.abspath('src'))
-# sys.path.append(os.path.abspath('src/accelerated_graph_features'))
+import networkx as nx
 
 from ...features_infra.feature_calculators import NodeFeatureCalculator, FeatureMeta
 from ...features_algorithms.accelerated_graph_features.src import k_core
@@ -17,7 +9,13 @@ class KCoreCalculator(NodeFeatureCalculator):
         return True
 
     def _calculate(self, include: set):
-        self._features = k_core(self._gnx)
+        # K_core gets only undirected graphs
+        if nx.is_directed(self._gnx):
+            dgraph = self._gnx.to_undirected()
+            self._features = k_core(dgraph)
+        else:
+            self._features = k_core(self._gnx)
+
 
 
 feature_entry = {

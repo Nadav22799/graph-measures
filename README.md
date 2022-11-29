@@ -9,7 +9,7 @@ a code for calculating 3- and 4-motifs using VDMC, a distributed algorithm to ca
 GPU-parallelized way.
 
 ## Versions
-- Last version: 0.1.51
+- Last version: 0.1.51 (most recommended)
 
 ## What Features Can Be Calculated Here?
 The set of all vertex features implemented in graph-measures is the following.
@@ -105,24 +105,33 @@ For example, the graph [example_graph.txt](https://github.com/AmitKabya/graph-me
     ```python
    import os
    from graphMeasures import FeatureCalculator
+   
    # set of features to be calculated
    feats = ["motif3", "louvain"]
+   
    # path to the graph's edgelist or nx.Graph object
    graph = os.path.join("measure_tests", "example_graph.txt")
+   
    # The path in which one would like to save the pickled features calculated in the process. 
    dir_path = "" 
-   # More options are shown here. For infomation about them, refer to the file.
-   ftr_calc = FeatureCalculator(path, feats, dir_path=dir_path, acc=True, directed=False, gpu=True, device=0, verbose=True)
-   # calculate the features. If one do not want the features to be saved,
+   
+   # More options are shown here. For information about them, refer to the file.
+   ftr_calc = FeatureCalculator(path, feats, dir_path=dir_path, acc=True, directed=False,
+                                 gpu=True, device=0, verbose=True)
+   
+   # Calculates the features. If one do not want the features to be saved,
    # one should set the parameter 'should_dump' to False (set to True by default).
-   ftr_calc.calculate_features()
-   mx = ftr_calc.feature_matrix
+   # If the features was already saved, you can set force_build to be True. 
+   ftr_calc.calculate_features(force_build=True)
+   features = ftr_calc.get_features() # return pandas Dataframe with the features 
     ``` 
-   More information can be found in [features_for_any_graph.py](https://github.com/AmitKabya/graph-measures/blob/master/src/graphMeasures/features_for_any_graph.py). \
+   <!-- More information can be found in [features_for_any_graph.py](https://github.com/AmitKabya/graph-measures/blob/master/src/graphMeasures/features_for_any_graph.py). \-->
    **Note:** If one set `acc=True` without using a Linux+Conda machine, an exception will be thrown.\
    **Note:** If one set `gpu=True` without using a Linux+Conda machine that has cuda available on it, an exception will be thrown.
-
-2. By the calculations as below **(less recommended)**: \
+<br />
+<br />
+<br />
+2. By the calculations as below **(not recommended)**: \
 The calculations require an input graph in NetworkX format, later referred as gnx, and a logger.
    For this example, we build a gnx and define a logger:
     ```python
@@ -186,9 +195,16 @@ The calculations require an input graph in NetworkX format, later referred as gn
    betweenness_centrality = all_possible_features_meta['betweenness_centrality']
    ```
    
-### Ouptput
-graphMeasures uses ```networkx```'s ```networkx.convert_node_labels_to_integers``` function, and then calculates the features. 
-That's why the output matrix is ordered by the new nodes labels (from 0 to n-1) and not by the original labels.
+## Contact us
+This package was written by [Yolo lab's](https://yolo.math.biu.ac.il/) team from Bar-Ilan University. \
+For questions, comments or suggestions you can contact louzouy@math.biu.ac.il .
 
-graphMeasures sometimes return the output columns not in the order they were inserted. The 
+[//]: # (### Ouptput)
+
+[//]: # (graphMeasures uses ```networkx```'s ```networkx.convert_node_labels_to_integers``` function, and then calculates the features. )
+
+[//]: # (That's why the output matrix is ordered by the new nodes labels &#40;from 0 to n-1&#41; and not by the original labels.)
+
+[//]: # ()
+[//]: # (graphMeasures sometimes return the output columns not in the order they were inserted. The )
    
