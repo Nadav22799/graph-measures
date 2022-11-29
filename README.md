@@ -180,7 +180,8 @@ The calculations require an input graph in NetworkX format, later referred as gn
     ```
    
    **Note:** All the keys-values options that can be set in the `features_meta` variable can be found
-   in `graphMeasures.features_meta` or `graphMeasures.accelerated_features_meta`
+   in `graphMeasures.features_meta` or `graphMeasures.accelerated_features_meta`.
+   
    ```python
    from graphMeasures import FeaturesMeta
    # if one uses the accelerated calculation:
