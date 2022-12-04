@@ -6,7 +6,8 @@ from itertools import permutations, combinations
 import networkx as nx
 import numpy as np
 from bitstring import BitArray
-from ...features_infra.feature_calculators import NodeFeatureCalculator, FeatureMeta
+# from  import NodeFeatureCalculator, FeatureMeta
+from graphMeasures.edges_features.py_features.feature_calculators import NodeFeatureCalculator, FeatureMeta
 
 CUR_PATH = os.path.realpath(__file__)
 BASE_PATH = os.path.dirname(os.path.dirname(CUR_PATH))

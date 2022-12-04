@@ -50,6 +50,9 @@ class FeaturesMeta:
             "load_centrality": FeatureMeta(LoadCentralityCalculator, {"load_c"}),  # Any
             "louvain": FeatureMeta(LouvainCalculator, {"lov"}),  # Undirected
             "motif3": FeatureMeta(nth_nodes_motif(3, gpu, device), {"m3"}),  # Any
+            "in_degree": None,
+            "out_degree": None,
+            "degree": None,
             "page_rank": FeatureMeta(PageRankCalculator, {"pr"}),  # Directed (but works for any)
             "motif4": FeatureMeta(nth_nodes_motif(4, gpu, device), {"m4"}),  # Any
             # new
