@@ -55,13 +55,13 @@ class FeaturesMeta:
             "load_centrality": FeatureMeta(LoadCentralityCalculator, {"load_c"}),  # Any
             "louvain": FeatureMeta(LouvainCalculator, {"lov"}),  # Undirected
             "motif3": FeatureMeta(nth_nodes_motif(3), {"m3"}),  # Any
-            "motif3_edges": FeatureMeta(nth_edges_motif(3), {"m3"}),  # Any
+            "edges_motif3": FeatureMeta(nth_edges_motif(3), {"m3"}),  # Any
             "in_degree": None,
             "out_degree": None,
             "degree": None,
             "page_rank": FeatureMeta(PageRankCalculator, {"pr"}),  # Directed (but works for any)
             "motif4": FeatureMeta(nth_nodes_motif(4), {"m4"}),  # Any
-            "motif4_edges": FeatureMeta(nth_edges_motif(4), {"m4"}),  # Any
+            "edges_motif4": FeatureMeta(nth_edges_motif(4), {"m4"}),  # Any
             # new
             "eigenvector_centrality": FeatureMeta(EigenvectorCentralityCalculator, {"eigenvector"}),
             "clustering_coefficient": FeatureMeta(ClusteringCoefficientCalculator, {"clustering"}),

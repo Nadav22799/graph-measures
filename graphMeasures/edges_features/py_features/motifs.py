@@ -7,7 +7,6 @@ import networkx as nx
 import numpy as np
 from bitstring import BitArray
 # from  import NodeFeatureCalculator, FeatureMeta
-from graphMeasures.edges_features.py_features.feature_calculators import NodeFeatureCalculator, FeatureMeta
 
 CUR_PATH = os.path.realpath(__file__)
 BASE_PATH = os.path.dirname(os.path.dirname(CUR_PATH))
@@ -15,10 +14,16 @@ VERBOSE = False
 DEBUG = False
 
 
-class MotifsNodeCalculator(NodeFeatureCalculator):
-    def __init__(self, *args, level=3, calc_edges=False
-                 , **kwargs):
-        super(MotifsNodeCalculator, self).__init__(*args, **kwargs)
+class MotifsEdgeCalculator:
+    def __init__(self, level, gnx):
+        self._print_name = "motifs - "
+        self._is_loaded = False
+        self._features = {}
+        # self._logger = EmptyLogger() if logger is None else logger
+        self._logger = None
+        self._gnx = gnx
+        self._default_val = 0
+
         assert level in [3, 4], "Unsupported motif level %d" % (level,)
         self._level = level
         self._node_variations = {}
@@ -26,17 +31,16 @@ class MotifsNodeCalculator(NodeFeatureCalculator):
         self._print_name += "_%d" % (self._level,)
         self._gnx = self._gnx.copy()
         self._load_variations()
-        self.calc_edges = calc_edges
 
     def is_relevant(self):
         return True
 
-    @classmethod
-    def print_name(cls, level=None):
-        print_name = super(MotifsNodeCalculator, cls).print_name()
-        if level is None:
-            return print_name
-        return "%s_%d" % (print_name, level)
+    def print_name(self):
+        return "motif" + str(self._level)
+        # print_name = super(MotifsNodeCalculator, cls).print_name()
+        # if level is None:
+        #     return print_name
+        # return "%s_%d" % (print_name, level)
 
     def _load_variations_file(self):
         fname = "%d_%sdirected.pkl" % (self._level, "" if self._gnx.is_directed() else "un")
@@ -172,30 +176,27 @@ class MotifsNodeCalculator(NodeFeatureCalculator):
             self._gnx.remove_node(node)
 
     def _update_edges(self, group, motif_num):
-        # we should save it in an array
+        # check - checks that the edge exist
+        # if self._gnx.is_directed:
+        #     check = lambda a1, a2: a1 != a2 and self._gnx.has_edge(a1, a2)
+        # else:
+        #     check = lambda a1, a2: (a1, a2) in self._features
+
         for v1 in group:
             for v2 in group:
-                if v1 != v2 and self._gnx.has_edge(v1, v2):
-                    print("edge:", v1, v2, "motif num:", motif_num)
+                # print(v1, v2, check(v1, v2))
+                # if check(v1, v2):
+                if (v1, v2) in self._features:
+                    self._features[(v1, v2)][motif_num] += 1
 
-    def _update_nodes_group(self, group, motif_num):
-        for node in group:
-            self._features[node][motif_num] += 1
-
-    def _calculate(self, include=None):
+    def calculate(self, include=None):
         m_gnx = self._gnx.copy()
         motif_counter = {motif_number: 0 for motif_number in self._all_motifs}
 
-        if self.calc_edges:
-            self._features = {edge: motif_counter.copy() for edge in self._gnx.edges()}
-        else:
-            self._features = {node: motif_counter.copy() for node in self._gnx}
+        self._features = {edge: motif_counter.copy() for edge in self._gnx.edges()}
 
         for i, (group, group_num, motif_num) in enumerate(self._calculate_motif()):
-            if self.calc_edges:
-                self._update_edges(group, motif_num)
-            else:
-                self._update_nodes_group(group, motif_num)
+            self._update_edges(group, motif_num)
 
             if (i + 1) % 1000 == 0 and VERBOSE:
                 self._logger.debug("Groups: %d" % i)
@@ -204,6 +205,7 @@ class MotifsNodeCalculator(NodeFeatureCalculator):
         # print('Number of motifs counted twice:', len(self._double_counter))
 
         self._gnx = m_gnx
+        return self._features
 
     def _get_feature(self, element):
         all_motifs = self._all_motifs.difference({None})
@@ -211,60 +213,5 @@ class MotifsNodeCalculator(NodeFeatureCalculator):
         return np.array([cur_feature[motif_num] for motif_num in sorted(all_motifs)])
 
 
-# consider ignoring node's data
-class MotifsEdgeCalculator(MotifsNodeCalculator):
-    def __init__(self, *args, include_nodes=False, **kwargs):
-        self._edge_variations = {}
-        self._should_include_nodes = include_nodes
-        super(MotifsEdgeCalculator, self).__init__(*args, **kwargs)
-
-    def is_relevant(self):
-        # if graph is not directed, there is no use of edge variations
-        return self._gnx.is_directed()
-
-    def _calculate_motif_dictionaries(self):
-        # calculating the node variations
-        super(MotifsEdgeCalculator, self)._load_variations_file()
-        if not self._gnx.is_directed():
-            # if graph is not directed, there is no use of edge variations
-            return
-
-        motif_edges = list(permutations(range(self._level), 2))
-
-        # level * (level - 1) is number of permutations of size 2
-        num_edges = self._level * (self._level - 1)
-        for group_num, motif_num in self._node_variations.items():
-            bin_repr = BitArray(length=num_edges, int=group_num)
-            self._edge_variations[group_num] = set([edge_type for bit, edge_type in zip(bin_repr, motif_edges) if bit])
-
-    # noinspection PyMethodOverriding
-    def _calculate(self, include=None):
-        for group, group_num, motif_num in self._calculate_motif():
-            if self._should_include_nodes:
-                self._update_nodes_group(group, motif_num)
-
-            for edge_type in self._edge_variations[group_num]:
-                edge = tuple(map(lambda idx: group[idx], edge_type))
-                if edge not in self._features:
-                    self._features[edge] = {motif_number: 0 for motif_number in self._all_motifs}
-                self._features[edge][motif_num] += 1
-
-
-def nth_nodes_motif(motif_level):
-    return partial(MotifsNodeCalculator, level=motif_level, calc_edges=False)
-
-
-def nth_edges_motif(motif_level):
-    return partial(MotifsNodeCalculator, level=motif_level, calc_edges=True)
-
-
-feature_node_entry = {
-    "motif3": FeatureMeta(nth_nodes_motif(3), {"m3"}),
-    "motif4": FeatureMeta(nth_nodes_motif(4), {"m4"}),
-}
-
-feature_edge_entry = {
-    "motif3_edge": FeatureMeta(nth_edges_motif(3), {"me3"}),
-    "motif4_edge": FeatureMeta(nth_edges_motif(4), {"me4"}),
-}
-
+Motifs3EdgeCalculator = partial(MotifsEdgeCalculator, 3)
+Motifs4EdgeCalculator = partial(MotifsEdgeCalculator, 4)

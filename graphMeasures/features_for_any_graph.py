@@ -191,6 +191,13 @@ class FeatureCalculator:
         return np.hstack((self._raw_features.to_matrix(mtype=np.array, should_zscore=self.should_zscore),
                           self._other_features.feature_matrix))
 
+    def edge_feature_matrix_with_names(self):
+        # return the feature matrix and the order of the features in the matrix
+        raw_features, raw_order = self._raw_features.edges_features_to_matrix(mtype=np.array,
+                                                                              should_zscore=self.should_zscore,
+                                                                              get_features_order=True)
+        return raw_features, self.build_names_list(raw_order)
+
     def feature_matrix_with_names(self):
         # return the feature matrix and the order of the features in the matrix
         raw_features, raw_order = self._raw_features.to_matrix(mtype=np.array, should_zscore=self.should_zscore,
@@ -220,10 +227,10 @@ class FeatureCalculator:
             "k_core": 1,
             "load_centrality": 1,
             "motif3": 13 if self._graph.is_directed() else 2,
-            "motif3_edges": 13 if self._graph.is_directed() else 2,
+            "edges_motif3": 13 if self._graph.is_directed() else 2,
             "motifs_node_3": 13 if self._graph.is_directed() else 2,
             "motif4": 199 if self._graph.is_directed() else 6,
-            "motif4_edges": 199 if self._graph.is_directed() else 6,
+            "edges_motif4": 199 if self._graph.is_directed() else 6,
             "motifs_node_4": 199 if self._graph.is_directed() else 6,
             "degree": 1,
             "eigenvector_centrality": 1,
@@ -240,12 +247,15 @@ class FeatureCalculator:
         }
 
         for name in names:
-            num = features_output_size[name]
-            if num == 1:
+            if name not in features_output_size:
                 new_list.append(name)
-            if num > 1:
-                for i in range(num):
-                    new_list.append(f'{name}_{i + 1}')
+            else:
+                num = features_output_size[name]
+                if num == 1:
+                    new_list.append(name)
+                if num > 1:
+                    for i in range(num):
+                        new_list.append(f'{name}_{i + 1}')
 
         return new_list
 

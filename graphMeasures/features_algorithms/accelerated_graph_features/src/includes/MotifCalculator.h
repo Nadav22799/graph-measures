@@ -49,7 +49,7 @@ private:
 	std::map<unsigned int,int>* nodeVariations;
 
 	//list of base motifs
-	std::vector<int>* allMotifs;
+    std::vector<int>* allMotifs;
 	//the index in which we remove the node from the graph. Basically, from this index on the node doesen't exist.
 	std::vector<unsigned int>* removalIndex;
 	//the nodes, sorted in descending order by the degree.
