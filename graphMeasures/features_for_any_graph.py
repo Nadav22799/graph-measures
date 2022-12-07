@@ -102,32 +102,34 @@ class FeatureCalculator:
             self._logger.info(str(datetime.datetime.now()) + " , Loaded graph")
             self._logger.debug("Graph Size: %d Nodes, %d Edges" % (len(self._graph), len(self._graph.edges)))
 
+    def is_valid_feature(self, feature, all_node_features):
+        if self._graph.is_directed:
+            return feature in all_node_features and feature not in not_exist_feature_for_directed_graph
+
+        return feature in all_node_features and feature not in not_exist_feature_for_undirected_graph
+
     def _get_feature_meta(self, features, acc):
         if acc:
             from .features_meta.accelerated_features_meta import FeaturesMeta
             features_meta_kwargs = dict(gpu=self._gpu, device=self._device)
-
         else:
             from .features_meta.features_meta import FeaturesMeta
             features_meta_kwargs = dict()
 
         all_node_features = FeaturesMeta(**features_meta_kwargs).NODE_LEVEL
+        valid_features = [feature for feature in features if self.is_valid_feature(feature, all_node_features)]
+        self.unknown_features = [feature for feature in features
+                                 if not self.is_valid_feature(feature, all_node_features)]
+
         self._features = {}
         self._special_features = []
-        for key in features:
+        if self._verbose:
+            for key in self.unknown_features:
+                self._logger.debug("Feature %s is not available for this graph, ignoring this feature." % key)
+
+        for key in valid_features:
             if key in ['degree', 'in_degree', 'out_degree', 'additional_features']:
                 self._special_features.append(key)
-            elif key not in all_node_features:
-                self.unknown_features.append(key)
-                if self._verbose:
-                    self._logger.debug("Feature %s unknown, ignoring this feature" % key)
-                features.remove(key)
-            elif (self._graph.is_directed and key in not_exist_feature_for_directed_graph) or \
-                    (not self._graph.is_directed and key in not_exist_feature_for_undirected_graph):
-                self.unknown_features.append(key)
-                if self._verbose:
-                    self._logger.debug("Feature %s is not available for this graph, ignoring this feature" % key)
-                features.remove(key)
             else:
                 self._features[key] = all_node_features[key]
 
@@ -189,6 +191,13 @@ class FeatureCalculator:
         return np.hstack((self._raw_features.to_matrix(mtype=np.array, should_zscore=self.should_zscore),
                           self._other_features.feature_matrix))
 
+    def edge_feature_matrix_with_names(self):
+        # return the feature matrix and the order of the features in the matrix
+        raw_features, raw_order = self._raw_features.edges_features_to_matrix(mtype=np.array,
+                                                                              should_zscore=self.should_zscore,
+                                                                              get_features_order=True)
+        return raw_features, self.build_names_list(raw_order)
+
     def feature_matrix_with_names(self):
         # return the feature matrix and the order of the features in the matrix
         raw_features, raw_order = self._raw_features.to_matrix(mtype=np.array, should_zscore=self.should_zscore,
@@ -218,8 +227,10 @@ class FeatureCalculator:
             "k_core": 1,
             "load_centrality": 1,
             "motif3": 13 if self._graph.is_directed() else 2,
+            "edges_motif3": 13 if self._graph.is_directed() else 2,
             "motifs_node_3": 13 if self._graph.is_directed() else 2,
             "motif4": 199 if self._graph.is_directed() else 6,
+            "edges_motif4": 199 if self._graph.is_directed() else 6,
             "motifs_node_4": 199 if self._graph.is_directed() else 6,
             "degree": 1,
             "eigenvector_centrality": 1,
@@ -236,12 +247,15 @@ class FeatureCalculator:
         }
 
         for name in names:
-            num = features_output_size[name]
-            if num == 1:
+            if name not in features_output_size:
                 new_list.append(name)
-            if num > 1:
-                for i in range(num):
-                    new_list.append(f'{name}_{i + 1}')
+            else:
+                num = features_output_size[name]
+                if num == 1:
+                    new_list.append(name)
+                if num > 1:
+                    for i in range(num):
+                        new_list.append(f'{name}_{i + 1}')
 
         return new_list
 

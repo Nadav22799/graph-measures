@@ -35,9 +35,10 @@ class Worker(Process):
 # object that calculates & holds a list of features of a graph.
 class GraphFeatures(dict):
     def __init__(self, gnx, features, dir_path, logger=None, is_max_connected=False):
+        # features is a dict that mapping feature name to feature-build object
         self._base_dir = dir_path
         self._logger = EmptyLogger() if logger is None else logger
-        self._matrix = None
+        self._matrix = None  # is used???
         self._is_build = False
 
         if is_max_connected:
@@ -50,7 +51,6 @@ class GraphFeatures(dict):
             self._gnx = gnx
 
         self._abbreviations = {abbr: name for name, meta in features.items() for abbr in meta.abbr_set}
-
         # building the feature calculators data structure
         super(GraphFeatures, self).__init__({name: meta.calculator(self._gnx, logger=logger)
                                              for name, meta in features.items()})
@@ -74,7 +74,7 @@ class GraphFeatures(dict):
                     # Probably user chooses acc=True without using the correct version.
                     print(
                         '\033[91m' + "You chose the accelerate option, but the accelerate compiled files were not"
-                        " found. Check that the accelerate version was installed properly. " + '\033[0m'
+                                     " found. Check that the accelerate version was installed properly. " + '\033[0m'
                     )
                     exit(1)
 
@@ -197,6 +197,31 @@ class GraphFeatures(dict):
         for name, feature in self.items():
             self._dump_feature(name, feature, dir_path)
 
+    def edges_features_to_matrix(self, entries_order: list = None, add_ones=False, dtype=None, mtype=np.matrix,
+                                 should_zscore: bool = True, get_features_order: bool = False):
+        if entries_order is None:
+            entries_order = sorted(self._gnx)
+
+        sorted_features = [feature[1] for feature in self.items() if feature[1].is_relevant() and feature[1].is_loaded]
+        edge_features = [feat for feat in sorted_features if str(feat.name).startswith("edge")]
+
+        # edges features
+        if edge_features:
+            x = []
+            for feature in sorted_features:
+                x.append(feature.to_matrix(entries_order, mtype=mtype, should_zscore=should_zscore))
+            emx = np.hstack(x)
+            if add_ones:
+                emx = np.hstack([emx, np.ones((emx.shape[0], 1))])
+            emx.astype(dtype)
+        else:
+            emx = np.empty((len(entries_order), 0))
+
+        if get_features_order:
+            return mtype(emx), [feature.name for feature in edge_features]
+
+        return mtype(emx)
+
     # sparse.csr_matrix(matrix, dtype=np.float32)
     def to_matrix(self, entries_order: list = None, add_ones=False, dtype=None, mtype=np.matrix,
                   should_zscore: bool = True, get_features_order: bool = False):
@@ -204,19 +229,17 @@ class GraphFeatures(dict):
             entries_order = sorted(self._gnx)
 
         sorted_features = [feature[1] for feature in self.items() if feature[1].is_relevant() and feature[1].is_loaded]
-        # Consider caching the matrix creation (if it takes long time)
 
-        # same to the line above
-        # sorted_features = [feature[1] for feature in self.items()]
-        # sorted_features = [feature for feature in sorted_features if feature.is_relevant() and feature.is_loaded]
+        # edge_features = [feat for feat in sorted_features if str(feat).startswith("edge")]
+        sorted_features = [feat for feat in sorted_features if not str(feat.name).startswith("edge")]
+        print([feat.name for feat in sorted_features])
 
+        # nodes features:
         if sorted_features:
             x = []
             for feature in sorted_features:
                 x.append(feature.to_matrix(entries_order, mtype=mtype, should_zscore=should_zscore))
             mx = np.hstack(x)
-            # mx = np.hstack([feature.to_matrix(entries_order, mtype=mtype, should_zscore=should_zscore)
-            #                 for feature in sorted_features])
             if add_ones:
                 mx = np.hstack([mx, np.ones((mx.shape[0], 1))])
             mx.astype(dtype)
@@ -242,24 +265,3 @@ class GraphFeatures(dict):
                 return {key: [value] for key, value in feat.items()}
         else:
             return {i: (feat[i] if type(feat[i]) in [list, np.ndarray] else [feat[i]]) for i in range(len(feat))}
-
-
-# class GraphNodeFeatures(GraphFeatures):
-#     def sparse_matrix(self, entries_order: list=None, **kwargs):
-#         if entries_order is None:
-#             entries_order = sorted(self._gnx)
-#         return super(GraphNodeFeatures, self).sparse_matrix(entries_order=entries_order, **kwargs)
-#
-#
-# class GraphEdgeFeatures(GraphFeatures):
-#     def sparse_matrix(self, entries_order: list=None, **kwargs):
-#         if entries_order is None:
-#             entries_order = sorted(self._gnx.edges())
-#         return super(GraphEdgeFeatures, self).sparse_matrix(entries_order=entries_order, **kwargs)
-
-
-# if __name__ == "__main__":
-#     from feature_meta import ALL_FEATURES
-#
-#     ftrs = GraphFeatures(nx.DiGraph(), ALL_FEATURES)
-#     print("Bla")

@@ -12,7 +12,7 @@ GPU-parallelized way.
 - Last version: 0.1.51 (most recommended)
 
 ## What Features Can Be Calculated Here?
-The set of all vertex features implemented in graph-measures is the following.
+The set of all vertex features implemented in graph-measures is the following:
 
 | Feature                                | Feature's name in code                 | Is available in gpu? | Output size for directed graph | Output size for undirected graph |
 |----------------------------------------|----------------------------------------|----------------------|--------------------------------|----------------------------------|
@@ -31,7 +31,7 @@ The set of all vertex features implemented in graph-measures is the following.
 | Closeness centrality                   | closeness_centrality                   | NO                   | N x 1                          | N x 1                            |
 | Eccentricity                           | eccentricity                           | NO                   | N x 1                          | N x 1                            |
 | Load centrality                        | load_centrality                        | NO                   | N x 1                          | N x 1                            |
-| BFS moments                            | bfs_moments                            | YES                  | N x 2                          | N x 2                            |
+| BFS moments                            | bfs_moments                            | NO                   | N x 2                          | N x 2                            |
 | Flow                                   | flow                                   | YES                  | N x 1                          | - - - - - - -                    |
 | Betweenness centrality                 | betweenness_centrality                 | NO                   | N x 1                          | N x 1                            |
 | Communicability betweenness centrality | communicability_betweenness_centrality | NO                   | - - - - - - -                  | N x ?                            |
@@ -48,7 +48,7 @@ Aside from those, there are some other [edge features](https://github.com/AmitKa
 Some more information regarding the features can be found in the files of [features_meta](https://github.com/AmitKabya/graph-measures/blob/master/src/graphMeasures/features_meta).
 
 ## Dependencies
-```requirements.txt
+```
 setuptools
 networkx==2.6.3
 pandas
@@ -86,7 +86,7 @@ pip install graph-measures
 ## How To Use?
 Even though one has installed the package as `graph-measures`, The package should be imported from the code as `graphMesaures`. Hence, use:
 ```python
-import graphMeasures
+from graphMeasures import FeatureCalculator
 ```
 ## Calculating Features
 
@@ -195,7 +195,39 @@ The calculations require an input graph in NetworkX format, later referred as gn
    # get the value for betweenness_centrality
    betweenness_centrality = all_possible_features_meta['betweenness_centrality']
    ```
-   
+
+## Edges motifs:
+For now, you can calculate only motifs for edges. Unfortunately, you will have to do it alone from the nodes features.
+There are two options for motif calculation - python version, and accelerate version (in CPP).
+The python version is always available, but the accelerate version available only on linux machine 
+(the makefile targets linux, but the code should work for any os). Anyway, if you have a suitable machine,
+the accelerated version is more recommended.
+
+To run the accelerate version you should do:
+1. Copy the graphMeasures directory to your project (available in this branch).
+2. Open terminal in `graphMeasures/edges_features/acc_features/acc/`
+3. Run the command `make`. If the makefile ends normally, a so file should be in a dir named bin.
+
+Execution example:
+```python
+import networkx as nx
+from graphMeasures.edges_features.feature_calculator import FeatureCalculator
+from graphMeasures.edges_features.pickle_manager import PickleManager
+
+pickle_manager = PickleManager("./pkl")
+
+path = "./data/graph.txt"
+gnx = nx.read_edgelist(path, delimiter=",", create_using=nx.DiGraph)
+# acc signs if we will use the accelerate version.
+calculator = FeatureCalculator(["motif3", "motif4"], gnx, acc=True)     
+calculator.build()
+
+# The result will be a pandas Dataframe named calculator.df.
+# You can use the pickle_manager module to save it. 
+pickle_manager.dump("graph", "motif3", calculator.df)
+```
+
+
 ## Contact us
 This package was written by [Yolo lab's](https://yolo.math.biu.ac.il/) team from Bar-Ilan University. \
 For questions, comments or suggestions you can contact louzouy@math.biu.ac.il .

@@ -14,7 +14,7 @@ from ..features_algorithms.vertices.k_core import KCoreCalculator
 from ..features_algorithms.vertices.load_centrality import LoadCentralityCalculator
 from ..features_algorithms.vertices.louvain import LouvainCalculator
 # from features_algorithms.vertices.neighbor_nodes_histogram import nth_neighbor_calculator
-from ..features_algorithms.vertices.motifs import nth_nodes_motif
+from ..features_algorithms.vertices.motifs import nth_nodes_motif, nth_edges_motif
 from ..features_algorithms.vertices.page_rank import PageRankCalculator
 from ..features_infra.feature_calculators import FeatureMeta, FeatureCalculator
 
@@ -55,8 +55,13 @@ class FeaturesMeta:
             "load_centrality": FeatureMeta(LoadCentralityCalculator, {"load_c"}),  # Any
             "louvain": FeatureMeta(LouvainCalculator, {"lov"}),  # Undirected
             "motif3": FeatureMeta(nth_nodes_motif(3), {"m3"}),  # Any
+            "edges_motif3": FeatureMeta(nth_edges_motif(3), {"m3"}),  # Any
+            "in_degree": None,
+            "out_degree": None,
+            "degree": None,
             "page_rank": FeatureMeta(PageRankCalculator, {"pr"}),  # Directed (but works for any)
             "motif4": FeatureMeta(nth_nodes_motif(4), {"m4"}),  # Any
+            "edges_motif4": FeatureMeta(nth_edges_motif(4), {"m4"}),  # Any
             # new
             "eigenvector_centrality": FeatureMeta(EigenvectorCentralityCalculator, {"eigenvector"}),
             "clustering_coefficient": FeatureMeta(ClusteringCoefficientCalculator, {"clustering"}),

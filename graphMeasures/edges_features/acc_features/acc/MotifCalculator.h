@@ -8,12 +8,17 @@
 #ifndef FEATURES_MOTIFCALCULATOR_H_
 #define FEATURES_MOTIFCALCULATOR_H_
 
+#include <stdint.h>
 #include "FeatureCalculator.h"
 #include "MotifUtils.h"
 #include <stdexcept>
 #include <string>
 #include <algorithm>
+#include <iostream>
 #include <set>
+#include <map>
+
+typedef int64_t int64;
 
 /**
  * The motif calc returns a list for each node counting the motifs in it.
@@ -28,7 +33,6 @@ public:
 private:
 	void Motif3Subtree(unsigned int node);
 	void Motif4Subtree(unsigned int node);
-
 	void InitFeatureCounters();
 	void LoadMotifVariations(int level,bool directed);
 	void SetAllMotifs();
@@ -49,7 +53,7 @@ private:
 	std::map<unsigned int,int>* nodeVariations;
 
 	//list of base motifs
-    std::vector<int>* allMotifs;
+	std::vector<int>* allMotifs;
 	//the index in which we remove the node from the graph. Basically, from this index on the node doesen't exist.
 	std::vector<unsigned int>* removalIndex;
 	//the nodes, sorted in descending order by the degree.
@@ -57,8 +61,8 @@ private:
 
 	//the results, node -> {motif-> motif_count}
 	vector<vector<unsigned int>*>* features;
-
-
+	bool calcEdges;
 };
 
 #endif /* FEATURES_MOTIFCALCULATOR_H_ */
+
