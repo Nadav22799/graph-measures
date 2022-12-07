@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+import networkx as nx
 
 from graphMeasures.edges_features.pickle_manager import PickleManager
 
@@ -21,9 +22,14 @@ class FeatureCalculator:
     def __init__(self, features, gnx, acc=False, pkl_dir="pkl"):
         self.df = None
         self.features = features
-        self.gnx = gnx
+
+        # We are mapping the nodes to ints for the calculation, and after we will map it to the original labels.
+        self.gnx = nx.convert_node_labels_to_integers(gnx, label_attribute="old_label")
+        # This is the matching between the original labels to the new ones.
+        self.mapping = nx.get_node_attributes(self.gnx, "old_label")
+
         self.acc = acc
-        self.calculators = set()    # To avoid duplicate calculation.
+        self.calculators = set()  # To avoid duplicate calculation.
         self.results = []
         self.pickle_manager = PickleManager(pkl_dir)
 
@@ -47,10 +53,15 @@ class FeatureCalculator:
 
         self.organize()
 
+    def map_back(self, edge):
+        return self.mapping[edge[0]], self.mapping[edge[1]]
+
     def organize(self):
+        # Return the graph to the original labels.
+        self.gnx = nx.relabel_nodes(self.gnx, self.mapping, copy=False)
+
         # Organize the features results in a dataframe
         self.df = pd.DataFrame(index=list(self.gnx.edges))
-        to_str = lambda tup: tuple(str(item) for item in tup)
 
         for name, res in self.results:
             arbitrary = next(iter(res.values()))
@@ -60,6 +71,7 @@ class FeatureCalculator:
                         continue
 
                     # This isn't working without the self.df.index.map...
-                    self.df[f"{name}_{key}"] = self.df.index.map({to_str(edge): values[key] for edge, values in res.items()})
+                    self.df[f"{name}_{key}"] = self.df.index.map(
+                        {self.map_back(edge): values[key] for edge, values in res.items()})
             else:
                 self.df[name] = self.df.index.map(res)
