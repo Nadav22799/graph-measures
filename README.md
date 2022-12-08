@@ -9,7 +9,7 @@ a code for calculating 3- and 4-motifs using VDMC, a distributed algorithm to ca
 GPU-parallelized way.
 
 ## Versions
-- Last version: 0.1.53 (most recommended)
+- Last version: 0.1.55 (most recommended)
 
 ## What Features Can Be Calculated Here?
 The set of all vertex features implemented in graph-measures is the following:
@@ -137,12 +137,12 @@ For example, the graph [example_graph.txt](https://github.com/louzounlab/graph-m
 
 ## Edges motifs:
 For now, you can calculate only motifs for edges. Unfortunately, you will have to do it separately from the nodes features.
-There are two options for motif calculation - python version, and accelerate version (in CPP).
-The python version is always available, but the accelerate version available only on linux machine 
+There are two options for motif calculation - python version, and accelerated version (in CPP).
+The python version is always available, but the accelerated version available only on linux machine 
 (the makefile targets linux, but the code should work for any os). Anyway, if you have a suitable machine,
 the accelerated version is more recommended.
 
-To run the accelerate version you should do:
+To run the accelerated version you should do:
 1. Copy the graphMeasures directory to your project (available in this branch).
 2. Open terminal in `graphMeasures/edges_features/acc_features/acc/`
 3. Run the command `make`. If the makefile ends normally, a so file should be in a dir named bin.
@@ -151,19 +151,15 @@ Execution example:
 ```python
 import networkx as nx
 from graphMeasures.edges_features.feature_calculator import FeatureCalculator
-from graphMeasures.edges_features.pickle_manager import PickleManager
-
-pickle_manager = PickleManager("./pkl")
 
 path = "./data/graph.txt"
 gnx = nx.read_edgelist(path, delimiter=",", create_using=nx.DiGraph)
-# acc signs if we will use the accelerate version.
+# acc signs if we will use the accelerated version.
 calculator = FeatureCalculator(["motif3", "motif4"], gnx, acc=True)     
 calculator.build()
 
 # The result will be a pandas Dataframe named calculator.df.
-# You can use the pickle_manager module to save it. 
-pickle_manager.dump("graph", "motif3", calculator.df)
+print(calculator.df)
 ```
 
 
