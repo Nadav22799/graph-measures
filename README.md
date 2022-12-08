@@ -130,7 +130,9 @@ For example, the graph [example_graph.txt](https://github.com/louzounlab/graph-m
    **Note:** If one set `gpu=True` without using a Linux+Conda machine that has cuda available on it, an exception will be thrown.
 <br />
 <br />
-2. Using graphMeasure [without FeatureCalculator](https://github.com/louzounlab/graph-measures/blob/master/OTHERS.md) (**less recommended**).
+2. Using graphMeasure <a href="https://github.com/louzounlab/graph-measures/blob/master/OTHERS.md">without FeatureCalculator</a> (**less recommended**).
+
+[//]: # (2. Using graphMeasure [without FeatureCalculator]&#40;https://github.com/louzounlab/graph-measures/blob/master/OTHERS.md&#41; &#40;**less recommended**&#41;.)
 <br />
 
 ## Edges motifs:
