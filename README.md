@@ -133,7 +133,6 @@ For example, the graph [example_graph.txt](https://github.com/louzounlab/graph-m
 2. Using graphMeasure [without FeatureCalculator](https://github.com/louzounlab/graph-measures/blob/master/OTHERS.md) (**less recommended**).
 <br />
 
-
 ## Edges motifs:
 For now, you can calculate only motifs for edges. Unfortunately, you will have to do it separately from the nodes features.
 There are two options for motif calculation - python version, and accelerate version (in CPP).
