@@ -79,7 +79,7 @@ if __name__ == '__main__':
 
     setup(
         name="graph-measures",
-        version="0.1.52",
+        version="0.1.53",
         license="GPL",
         maintainer="Ziv Naim",
         author="Itay Levinas",
