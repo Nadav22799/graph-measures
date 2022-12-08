@@ -170,7 +170,6 @@ class FeatureCalculator:
             print("No features were chosen!")
         else:
             self._adj_matrix = nx.adjacency_matrix(self._graph)
-            # self._adj_matrix = self._adj_matrix.toarray()
             self._raw_features = GraphFeatures(gnx=self._graph, features=self._features, dir_path=self._dir_path,
                                                logger=self._logger)
             if dumping_specs is not None:
@@ -190,13 +189,6 @@ class FeatureCalculator:
     def feature_matrix(self):
         return np.hstack((self._raw_features.to_matrix(mtype=np.array, should_zscore=self.should_zscore),
                           self._other_features.feature_matrix))
-
-    def edge_feature_matrix_with_names(self):
-        # return the feature matrix and the order of the features in the matrix
-        raw_features, raw_order = self._raw_features.edges_features_to_matrix(mtype=np.array,
-                                                                              should_zscore=self.should_zscore,
-                                                                              get_features_order=True)
-        return raw_features, self.build_names_list(raw_order)
 
     def feature_matrix_with_names(self):
         # return the feature matrix and the order of the features in the matrix

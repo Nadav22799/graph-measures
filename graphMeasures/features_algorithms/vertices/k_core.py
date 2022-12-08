@@ -10,6 +10,11 @@ class KCoreCalculator(NodeFeatureCalculator):
     def _calculate(self, include: set):
         loopless_gnx = self._gnx.copy()
         loopless_gnx.remove_edges_from(nx.selfloop_edges(loopless_gnx))
+
+        # K-core is a feature for undirected graphs.
+        if nx.is_directed(loopless_gnx):
+            loopless_gnx = loopless_gnx.to_undirected()
+
         self._features = nx.core_number(loopless_gnx)
 
 
