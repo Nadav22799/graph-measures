@@ -9,7 +9,7 @@ a code for calculating 3- and 4-motifs using VDMC, a distributed algorithm to ca
 GPU-parallelized way.
 
 ## Versions
-- Last version: 0.1.51 (most recommended)
+- Last version: 0.1.53 (most recommended)
 
 ## What Features Can Be Calculated Here?
 The set of all vertex features implemented in graph-measures is the following:
@@ -132,7 +132,6 @@ For example, the graph [example_graph.txt](https://github.com/louzounlab/graph-m
 <br />
 2. Using graphMeasure [without FeatureCalculator](https://github.com/louzounlab/graph-measures/blob/master/OTHERS.md) (**less recommended**).
 <br />
-
 
 ## Edges motifs:
 For now, you can calculate only motifs for edges. Unfortunately, you will have to do it separately from the nodes features.
