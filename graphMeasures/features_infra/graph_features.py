@@ -232,7 +232,6 @@ class GraphFeatures(dict):
 
         # edge_features = [feat for feat in sorted_features if str(feat).startswith("edge")]
         sorted_features = [feat for feat in sorted_features if not str(feat.name).startswith("edge")]
-        print([feat.name for feat in sorted_features])
 
         # nodes features:
         if sorted_features:

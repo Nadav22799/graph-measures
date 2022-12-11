@@ -103,7 +103,7 @@ class FeatureCalculator:
             self._logger.debug("Graph Size: %d Nodes, %d Edges" % (len(self._graph), len(self._graph.edges)))
 
     def is_valid_feature(self, feature, all_node_features):
-        if self._graph.is_directed:
+        if self._graph.is_directed():
             return feature in all_node_features and feature not in not_exist_feature_for_directed_graph
 
         return feature in all_node_features and feature not in not_exist_feature_for_undirected_graph
