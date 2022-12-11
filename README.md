@@ -135,6 +135,35 @@ For example, the graph [example_graph.txt](https://github.com/louzounlab/graph-m
 [//]: # (2. Using graphMeasure [without FeatureCalculator]&#40;https://github.com/louzounlab/graph-measures/blob/master/OTHERS.md&#41; &#40;**less recommended**&#41;.)
 <br />
 
+## Example 
+For the next directed graph and these features, FeatureCalculator should return this dataframe:
+
+**The features:** ["out_degree", "k_core", "in_degree", "page_rank", "not-exist-feature"] <br>
+**The graph (directed):**
+```
+5,1
+0,1
+0,3
+1,3
+2,5
+2,4
+3,2
+4,0
+```
+**The result:**
+
+| node | k_core | page_rank | out_degree | in_degree | not-exist-feature |
+|------|--------|-----------|------------|-----------|-------------------|
+| 0    | 2.0    | 0.123484  | 2.0        | 1.0       | NaN               |
+| 1    | 2.0    | 0.179051  | 1.0        | 2.0       | NaN               |
+| 2    | 2.0    | 0.226711  | 2.0        | 1.0       | NaN               |
+| 3    | 2.0    | 0.226711  | 1.0        | 2.0       | NaN               |
+| 4    | 2.0    | 0.118687  | 1.0        | 1.0       | NaN               |
+| 5    | 2.0    | 0.118687  | 1.0        | 1.0       | NaN               |
+
+
+
+
 ## Edges motifs:
 For now, you can calculate only motifs for edges. Unfortunately, you will have to do it separately from the nodes features.
 There are two options for motif calculation - python version, and accelerated version (in CPP).
