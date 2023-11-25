@@ -4,6 +4,7 @@ from ..features_algorithms.vertices.bfs_moments import BfsMomentsCalculator
 from ..features_algorithms.accelerated_graph_features.flow import FlowCalculator
 from ..features_algorithms.accelerated_graph_features.k_core import KCoreCalculator
 from ..features_algorithms.accelerated_graph_features.motifs import nth_nodes_motif
+from ..features_algorithms.accelerated_graph_features.motifs import nth_edges_motif as nth_edges_motif_gpu
 from ..features_algorithms.accelerated_graph_features.page_rank import PageRankCalculator
 from ..features_algorithms.vertices.average_neighbor_degree import AverageNeighborDegreeCalculator
 from ..features_algorithms.vertices.betweenness_centrality import BetweennessCentralityCalculator
@@ -57,12 +58,14 @@ class FeaturesMeta:
             "louvain": FeatureMeta(LouvainCalculator, {"lov"}),  # Undirected
             "motif3": FeatureMeta(nth_nodes_motif(3, gpu, device), {"m3"}),  # Any
             "edges_motif3": FeatureMeta(nth_edges_motif(3), {"m3"}),  # Any
+            "motif3_edges_gpu": FeatureMeta(nth_edges_motif_gpu(3, gpu, device), {"m3"}),  # Any
             "in_degree": None,
             "out_degree": None,
             "degree": None,
             "page_rank": FeatureMeta(PageRankCalculator, {"pr"}),  # Directed (but works for any)
             "motif4": FeatureMeta(nth_nodes_motif(4, gpu, device), {"m4"}),  # Any
             "edges_motif4": FeatureMeta(nth_edges_motif(4), {"m3"}),  # Any
+            "motif4_edges_gpu": FeatureMeta(nth_edges_motif_gpu(4, gpu, device), {"m4"}),  # Any
             # new
             "eigenvector_centrality": FeatureMeta(EigenvectorCentralityCalculator, {"eigenvector"}),
             "clustering_coefficient": FeatureMeta(ClusteringCoefficientCalculator, {"clustering"}),
@@ -77,7 +80,7 @@ class FeaturesMeta:
 
         self.MOTIFS = {
             "motif3": FeatureMeta(nth_nodes_motif(3, gpu, device), {"m3"}),
-            "motif4": FeatureMeta(nth_nodes_motif(4, gpu, device), {"m4"})
+            "motif4": FeatureMeta(nth_nodes_motif(4, gpu, device), {"m4"}),
         }
 
         """

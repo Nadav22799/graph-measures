@@ -43,10 +43,12 @@ def run_makefile():
         cmd = '. ' + conda_base() + '/etc/profile.d/conda.sh && conda activate boost'
         print(cmd)
         subprocess.call(cmd, shell=True, executable='/bin/bash')
+        
         print("did subprocess thingy")
         for command in makefile_command(gpu_available):
             process = subprocess.Popen(
                 command.split(), stdout=subprocess.PIPE)
+
             print("another subprocessing")
             output = process.stdout.read()
             print(output)
